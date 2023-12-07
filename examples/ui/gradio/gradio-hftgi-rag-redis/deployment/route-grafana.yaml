@@ -1,0 +1,16 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: grafana
+  namespace: prometheus
+spec:
+  host: grafana-prometheus.apps.ai-dev01.kni.syseng.devcluster.openshift.com
+  to:
+    kind: Service
+    name: grafana-service
+    weight: 100
+  port:
+    targetPort: grafana
+  tls:
+    termination: edge
+  wildcardPolicy: None

@@ -1,0 +1,22 @@
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: prometheus
+  namespace: prometheus
+spec:
+  evaluationInterval: 30s
+  resources:
+    requests:
+      memory: 400Mi
+  scrapeInterval: 30s
+  serviceAccountName: prometheus-k8s
+  serviceMonitorSelector:
+    matchLabels:
+      app: frontend
+  storage:
+    volumeClaimTemplate:
+      spec:
+        resources:
+          requests:
+            storage: 20Gi
+        storageClassName: gp3-csi
