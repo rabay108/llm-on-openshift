@@ -223,7 +223,7 @@ with gr.Blocks(title="HatBot") as demo:
             )
             with gr.Row():
                 submit_button = gr.Button("Generate")
-                clear_button = gr.ClearButton()
+                clear_button = gr.LogoutButton(value="Clear", icon=None)
 
             gr.HTML(f"<div><span id='model_id'>Model: {model_id}</span></div>")
             radio = gr.Radio(["1", "2", "3", "4", "5"], label="Rate the model")
