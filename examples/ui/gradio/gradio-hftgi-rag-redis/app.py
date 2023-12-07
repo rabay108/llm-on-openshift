@@ -8,6 +8,7 @@ from typing import Optional
 import os
 from markdown import markdown
 import pdfkit
+import uuid
 
 import gradio as gr
 from prometheus_client import start_http_server, Counter
@@ -66,13 +67,13 @@ def get_model_id():
 
 model_id = get_model_id()
 # PDF Generation
-def get_pdf_file():
-    return os.path.join("./assets", PDF_FILE_DIR, 'proposal.pdf')
+def get_pdf_file(session_id):
+    return os.path.join("./assets", PDF_FILE_DIR, f"proposal-{session_id}.pdf")
 
-def create_pdf(text):
-    output_filename = get_pdf_file()
+def create_pdf(text, session_id):
+    output_filename = get_pdf_file(session_id)
     html_text = markdown(text, output_format='html4')
-    pdfkit.from_string(html_text, output_filename)
+    pdf=pdfkit.from_string(html_text, output_filename)
 
 # Streaming implementation
 class QueueCallback(BaseCallbackHandler):
@@ -95,7 +96,7 @@ def remove_source_duplicates(input_list):
     return unique_list
 
 
-def stream(input_text) -> Generator:
+def stream(input_text, session_id) -> Generator:
     # Create a Queue
     job_done = object()
 
@@ -104,7 +105,7 @@ def stream(input_text) -> Generator:
         MODEL_USAGE_COUNTER.labels(model_id=model_id).inc() 
         resp = qa_chain({"query": input_text})
         sources = remove_source_duplicates(resp['source_documents'])
-        create_pdf(resp['result'])
+        create_pdf(resp['result'], session_id)
         if len(sources) != 0:
             q.put("\n*Sources:* \n")
             for source in sources:
@@ -122,7 +123,7 @@ def stream(input_text) -> Generator:
         try:
             next_token = q.get(True, timeout=1)
             if next_token is job_done:
-                break
+                break           
             if isinstance(next_token, str):
                 content += next_token
                 yield next_token, content
@@ -203,9 +204,13 @@ qa_chain = RetrievalQA.from_chain_type(
 
 # Gradio implementation
 def ask_llm(customer, product):
+    session_id = str(uuid.uuid4())
     query = f"Generate a Sales Proposal for the product '{product}' to sell to company '{customer}' that includes overview, features, benefits, and support options?"
-    for next_token, content in stream(query):
-        yield(content)
+    for next_token, content in stream(query, session_id):
+        # Generate the download link HTML
+        download_link_html = f'<a href="/file={get_pdf_file(session_id)}">Download PDF</a>'
+        yield content, download_link_html    
+
 
 # Gradio implementation
 css = "#output-container {font-size:0.8rem !important}"
@@ -224,19 +229,18 @@ with gr.Blocks(title="HatBot") as demo:
             radio = gr.Radio(["1", "2", "3", "4", "5"], label="Rate the model")
             output_rating = gr.Textbox(elem_id="source-container", readonly=True, label="Rating")
 
-
         with gr.Column(scale=2):
             output_answer = gr.Textbox(label="Project Proposal", readonly=True, lines=19, elem_id="output-container", scale=4, max_lines=19)
-            #source = gr.Textbox(label="Sources", elem_id="source-container", readonly=True, lines=5, scale=4, max_lines=5)
-            download_button = gr.Button("Download as PDF", link="/file=" + get_pdf_file())
-        
-    download_button.click(lambda: [], inputs=[])
-    submit_button.click(ask_llm, inputs=[customer_box, product_dropdown], outputs=[output_answer])
+            # path = gr.Textbox(label="PDF file", readonly=True, lines=2, elem_id="output-container", scale=4, max_lines=3)
+            #download_button = gr.Button("Download as PDF")
+            download_link_html = gr.HTML()
+
+    #download_button.click(lambda: [], inputs=[])
+    submit_button.click(ask_llm, inputs=[customer_box, product_dropdown], outputs=[output_answer,download_link_html])
     clear_button.click(lambda: [None, None ,None , None, None], 
                        inputs=[], 
                        outputs=[customer_box,product_dropdown,output_answer,radio,output_rating])
 
-    
     @radio.input(inputs=radio, outputs=output_rating)
     def get_feedback(star):
         print("Rating: " + star)
