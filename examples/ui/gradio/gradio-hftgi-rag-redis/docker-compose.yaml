@@ -1,6 +1,7 @@
 services:
   gradio:
-    image: twinkllsisodia/gradio-hftgi-rag-redis21:latest
+    #image: docker.io/library/gradio-app    
+    build: .                                                            
     restart: always
     platform: linux/amd64
     environment:

@@ -208,7 +208,7 @@ def ask_llm(customer, product):
     query = f"Generate a Sales Proposal for the product '{product}' to sell to company '{customer}' that includes overview, features, benefits, and support options?"
     for next_token, content in stream(query, session_id):
         # Generate the download link HTML
-        download_link_html = f'<a href="/file={get_pdf_file(session_id)}">Download PDF</a>'
+        download_link_html = f' <input type="hidden" id="pdf_file" name="pdf_file" value="/file={get_pdf_file(session_id)}" />'
         yield content, download_link_html    
 
 
@@ -223,19 +223,19 @@ with gr.Blocks(title="HatBot") as demo:
             )
             with gr.Row():
                 submit_button = gr.Button("Generate")
-                clear_button = gr.ClearButton()
+                clear_button = gr.LogoutButton(value="Clear", icon=None)
 
             gr.HTML(f"<div><span id='model_id'>Model: {model_id}</span></div>")
             radio = gr.Radio(["1", "2", "3", "4", "5"], label="Rate the model")
-            output_rating = gr.Textbox(elem_id="source-container", readonly=True, label="Rating")
+            output_rating = gr.Textbox(elem_id="source-container", interactive=True, label="Rating")
 
         with gr.Column(scale=2):
-            output_answer = gr.Textbox(label="Project Proposal", readonly=True, lines=19, elem_id="output-container", scale=4, max_lines=19)
-            # path = gr.Textbox(label="PDF file", readonly=True, lines=2, elem_id="output-container", scale=4, max_lines=3)
-            #download_button = gr.Button("Download as PDF")
-            download_link_html = gr.HTML()
+            output_answer = gr.Textbox(label="Project Proposal", interactive=True, lines=19, elem_id="output-container", scale=4, max_lines=19)
+            # path = gr.Textbox(label="PDF file", interactive=True, lines=2, elem_id="output-container", scale=4, max_lines=3)
+            download_button = gr.Button("Download as PDF")
+            download_link_html=gr.HTML(visible=False)
 
-    #download_button.click(lambda: [], inputs=[])
+    download_button.click(None, [], [], js="() => window.open(document.getElementById('pdf_file').value, '_blank')")
     submit_button.click(ask_llm, inputs=[customer_box, product_dropdown], outputs=[output_answer,download_link_html])
     clear_button.click(lambda: [None, None ,None , None, None], 
                        inputs=[], 
@@ -252,4 +252,5 @@ if __name__ == "__main__":
     demo.queue().launch(
         server_name='0.0.0.0',
         share=False,
-        favicon_path='./assets/robot-head.ico')
+        favicon_path='./assets/robot-head.ico',
+        allowed_paths=["assets"])
