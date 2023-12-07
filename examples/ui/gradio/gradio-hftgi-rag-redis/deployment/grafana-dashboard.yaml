@@ -1,0 +1,457 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 1,
+  "iteration": 1701962158077,
+  "links": [],
+  "panels": [
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "text": {}
+      },
+      "pluginVersion": "7.5.17",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum(feedback_stars_total{namespace=\"$namespace\", model_id=\"google/flan-t5-xl\"}) by (stars)\n",
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "RATINGS - GOOGLE FLAN-T5",
+      "type": "bargauge"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "id": 16,
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "text": {}
+      },
+      "pluginVersion": "7.5.17",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum(feedback_stars_total{namespace=\"$namespace\", model_id=\"mistralai/Mistral-7B-Instruct-v0.1\"}) by (stars)\n",
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "RATINGS - MISTRAL MODEL",
+      "type": "bargauge"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 15
+      },
+      "id": 10,
+      "maxPerRow": 2,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "text": {}
+      },
+      "pluginVersion": "7.5.17",
+      "repeat": "ModelID",
+      "repeatDirection": "h",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "(sum((feedback_stars_total{namespace=\"$namespace\", stars=\"1\", model_id=\"google/flan-t5-xl\"} or on() vector(0))* 1) + sum((feedback_stars_total{namespace=\"$namespace\", stars=\"2\", model_id=\"google/flan-t5-xl\"} or on() vector(0)) * 2) +\nsum((feedback_stars_total{namespace=\"$namespace\", stars=\"3\", model_id=\"google/flan-t5-xl\"} or on() vector(0)) * 3) + sum((feedback_stars_total{namespace=\"$namespace\", stars=\"4\", model_id=\"google/flan-t5-xl\"} or on() vector(0)) * 4) +\nsum((feedback_stars_total{namespace=\"$namespace\", stars=\"5\", model_id=\"google/flan-t5-xl\"} or on() vector(0)) * 5)) \n/\n(sum(feedback_stars_total{namespace=\"$namespace\", stars=\"1\", model_id=\"google/flan-t5-xl\"} or on() vector(0)) + sum(feedback_stars_total{namespace=\"$namespace\", stars=\"2\", model_id=\"google/flan-t5-xl\"} or on() vector(0)) + sum(feedback_stars_total{namespace=\"$namespace\", stars=\"3\", model_id=\"google/flan-t5-xl\"} or on() vector(0)) + sum(feedback_stars_total{namespace=\"$namespace\", stars=\"4\", model_id=\"google/flan-t5-xl\"} or on() vector(0)) + sum(feedback_stars_total{namespace=\"$namespace\", stars=\"5\", model_id=\"google/flan-t5-xl\"} or on() vector(0)))\n",
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "AVERAGE RATINGS - google/flan-t5-xl",
+      "type": "gauge"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 15
+      },
+      "id": 8,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "text": {}
+      },
+      "pluginVersion": "7.5.17",
+      "targets": [
+        {
+          "exemplar": false,
+          "expr": "(sum((feedback_stars_total{namespace=\"$namespace\", stars=\"1\", model_id=\"mistralai/Mistral-7B-Instruct-v0.1\"} or on() vector(0))* 1) + sum((feedback_stars_total{namespace=\"$namespace\", stars=\"2\", model_id=\"mistralai/Mistral-7B-Instruct-v0.1\"} or on() vector(0)) * 2) +\nsum((feedback_stars_total{namespace=\"$namespace\", stars=\"3\", model_id=\"mistralai/Mistral-7B-Instruct-v0.1\"} or on() vector(0)) * 3) + sum((feedback_stars_total{namespace=\"$namespace\", stars=\"4\", model_id=\"mistralai/Mistral-7B-Instruct-v0.1\"} or on() vector(0)) * 4) +\nsum((feedback_stars_total{namespace=\"$namespace\", stars=\"5\", model_id=\"mistralai/Mistral-7B-Instruct-v0.1\"} or on() vector(0)) * 5)) \n/\n(sum(feedback_stars_total{namespace=\"$namespace\", stars=\"1\", model_id=\"mistralai/Mistral-7B-Instruct-v0.1\"} or on() vector(0)) + sum(feedback_stars_total{namespace=\"$namespace\", stars=\"2\", model_id=\"mistralai/Mistral-7B-Instruct-v0.1\"} or on() vector(0)) + sum(feedback_stars_total{namespace=\"$namespace\", stars=\"3\", model_id=\"mistralai/Mistral-7B-Instruct-v0.1\"} or on() vector(0)) + sum(feedback_stars_total{namespace=\"$namespace\", stars=\"4\", model_id=\"mistralai/Mistral-7B-Instruct-v0.1\"} or on() vector(0)) + sum(feedback_stars_total{namespace=\"$namespace\", stars=\"5\", model_id=\"mistralai/Mistral-7B-Instruct-v0.1\"} or on() vector(0)))",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "AVERAGE RATING  - MISTRAL MODEL",
+      "type": "gauge"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 22
+      },
+      "id": 12,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "7.5.17",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum by (model_id) (model_usage_total{model_id=\"google/flan-t5-xl\", namespace=\"$namespace\"})",
+          "interval": "",
+          "legendFormat": "{{model_id}}",
+          "refId": "A"
+        },
+        {
+          "exemplar": true,
+          "expr": "sum by (model_id) (model_usage_total{model_id=\"mistralai/Mistral-7B-Instruct-v0.1\", namespace=\"$namespace\"})",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "{{model_id}}",
+          "refId": "B"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "MODEL USAGE",
+      "transformations": [],
+      "type": "stat"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 22
+      },
+      "id": 14,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "text": {}
+      },
+      "pluginVersion": "7.5.17",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum by (model_id) (request_duration_seconds{model_id=\"google/flan-t5-xl\"})",
+          "interval": "",
+          "legendFormat": "{{model_id}}",
+          "refId": "A"
+        },
+        {
+          "exemplar": true,
+          "expr": "sum by (model_id) (request_duration_seconds{model_id=\"mistralai/Mistral-7B-Instruct-v0.1\"})",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "{{model_id}}",
+          "refId": "B"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "REQUEST TIME ",
+      "type": "gauge"
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 27,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "tgis-llm-demo",
+          "value": "tgis-llm-demo"
+        },
+        "datasource": null,
+        "definition": "label_values(namespace)",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "namespace",
+        "options": [
+          {
+            "selected": true,
+            "text": "tgis-llm-demo",
+            "value": "tgis-llm-demo"
+          },
+          {
+            "selected": false,
+            "text": "vectordb",
+            "value": "vectordb"
+          }
+        ],
+        "query": {
+          "query": "label_values(namespace)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 0,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "MODEL FEEDBACK/RATING",
+  "uid": "HtUdEp4Ik",
+  "version": 19
+}

@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  creationTimestamp: '2023-11-22T18:29:17Z'
+  generation: 1
+  labels:
+    app: frontend
+  name: llm-demo-mistral
+  namespace: prometheus
+spec:
+  endpoints:
+    - port: metrics
+  namespaceSelector:
+    matchNames:
+      - tgis-llm-demo
+  selector:
+    matchLabels:
+      app: gradio-hftgi-rag-redis-mistral
