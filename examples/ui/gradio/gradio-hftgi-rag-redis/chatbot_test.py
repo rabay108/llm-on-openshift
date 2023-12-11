@@ -21,23 +21,25 @@ for user in range(10):
     element_present = EC.presence_of_element_located((By.CSS_SELECTOR, "#component-0 .scroll-hide"))
     WebDriverWait(driver, timeout).until(element_present)
 
-    Select options = new Select(driver.findElement(By.name("country")));
-
     # User enters a question
     customer_input = driver.find_element(By.CSS_SELECTOR, "#component-3 .scroll-hide")
     customer_input.clear()  # Clearing any previous input
     customer_input.send_keys(f"User {user + 1}: Apple")
     
+    # dropdown = driver.find_element(By.CSS_SELECTOR, "#component-4 .secondary-wrap")
+    # dropdown.click()  
+
+    # Select options = new Select(driver.findElement(By.CLASS("#component-4 .options")));
+    # options.selectByVisibleText("Red Hat Openshift Data Science");
+
     dropdown = driver.find_element(By.CSS_SELECTOR, "#component-4 .secondary-wrap")
-    dropdown.click()  
+    dropdown.click()
 
-    option_to_select = driver.find_element(By.CSS_SELECTOR, "#component-4 .options, 'Red Hat Openshift Data Science'")
-    option_to_select.click()
+    option = driver.find_element(By.XPATH, "(//ul/li)[2]")
+    option.click()
 
-    # options = driver.find_element(By.CSS_SELECTOR, "#component-4 .options")
-    # options.click()
-
-    driver.find_element(By.ID, "component-6").click()
+    submit=driver.find_element(By.CSS_SELECTOR, "#component-6")
+    submit.click()
 
     label_list=[1,1,1,1,1,1,1,1,2,3,4,5]
     random_num = random.choice(label_list)
@@ -46,7 +48,7 @@ for user in range(10):
 
     # label_id = "label[data-testid='2-radio-label']"
     WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, label_id))).click()
-    time.sleep(2)  # Adding a delay for better simulation of user interaction
+    time.sleep(20)  # Adding a delay for better simulation of user interaction
 
 # Close the browser after the loop completes
 #driver.quit()
