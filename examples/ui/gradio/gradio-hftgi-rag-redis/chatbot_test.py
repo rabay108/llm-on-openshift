@@ -24,10 +24,7 @@ for user in range(10):
     # User enters a question
     customer_input = driver.find_element(By.CSS_SELECTOR, "#component-3 .scroll-hide")
     customer_input.clear()  # Clearing any previous input
-    customer_input.send_keys(f"User {user + 1}: Apple")
-    
-    # dropdown = driver.find_element(By.CSS_SELECTOR, "#component-4 .secondary-wrap")
-    # dropdown.click()  
+    customer_input.send_keys(f"User {user + 1}: Apple") 
 
     # Select options = new Select(driver.findElement(By.CLASS("#component-4 .options")));
     # options.selectByVisibleText("Red Hat Openshift Data Science");
