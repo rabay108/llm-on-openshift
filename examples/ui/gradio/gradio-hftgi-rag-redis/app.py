@@ -75,6 +75,11 @@ def create_pdf(text, session_id):
     html_text = markdown(text, output_format='html4')
     pdf=pdfkit.from_string(html_text, output_filename)
 
+# Function to initialize all star ratings to 0
+def initialize_feedback_counters(model_id):
+    for star in range(1, 6):  # For star ratings 1 to 5
+        FEEDBACK_COUNTER.labels(stars=str(star), model_id=model_id).inc(0)
+
 # Streaming implementation
 class QueueCallback(BaseCallbackHandler):
     """Callback handler for streaming LLM responses to a queue."""
@@ -103,6 +108,8 @@ def stream(input_text, session_id) -> Generator:
     # Create a function to call - this will run in a thread
     def task():
         MODEL_USAGE_COUNTER.labels(model_id=model_id).inc() 
+        # Call this function at the start of your application
+        initialize_feedback_counters(model_id)
         resp = qa_chain({"query": input_text})
         sources = remove_source_duplicates(resp['source_documents'])
         create_pdf(resp['result'], session_id)
