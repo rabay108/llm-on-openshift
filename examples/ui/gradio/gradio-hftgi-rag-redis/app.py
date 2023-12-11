@@ -107,10 +107,10 @@ def stream(input_text, session_id) -> Generator:
         initialize_feedback_counters(model_id)
         start_time = time.perf_counter() # start and end time to get the precise timing of the request
         resp = qa_chain({"query": input_text})
+        sources = remove_source_duplicates(resp['source_documents'])
         end_time = time.perf_counter()
         # Record successful request time
         REQUEST_TIME.labels(model_id=model_id).set(end_time - start_time)
-        sources = remove_source_duplicates(resp['source_documents'])
         create_pdf(resp['result'], session_id)
         if len(sources) != 0:
             q.put("\n*Sources:* \n")
