@@ -18,6 +18,8 @@ driver.set_window_size(1084, 811)
 timeout = 10
 
 for user in range(10):
+    driver.refresh()
+
     element_present = EC.presence_of_element_located((By.CSS_SELECTOR, "#component-0 .scroll-hide"))
     WebDriverWait(driver, timeout).until(element_present)
 
