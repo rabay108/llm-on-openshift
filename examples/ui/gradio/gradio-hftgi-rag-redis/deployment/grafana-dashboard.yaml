@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 1,
-  "iteration": 1701962158077,
+  "iteration": 1702315639236,
   "links": [],
   "panels": [
     {
@@ -27,63 +27,8 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 2,
-      "options": {
-        "displayMode": "gradient",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true,
-        "text": {}
-      },
-      "pluginVersion": "7.5.17",
-      "targets": [
-        {
-          "exemplar": true,
-          "expr": "sum(feedback_stars_total{namespace=\"$namespace\", model_id=\"google/flan-t5-xl\"}) by (stars)\n",
-          "interval": "",
-          "legendFormat": "",
-          "refId": "A"
-        }
-      ],
-      "title": "RATINGS - GOOGLE FLAN-T5",
-      "type": "bargauge"
-    },
-    {
-      "datasource": null,
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
+          "max": 5,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -104,7 +49,69 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 8
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "vertical",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "text": {}
+      },
+      "pluginVersion": "7.5.17",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum(feedback_stars_total{namespace=\"$namespace\", model_id=\"google/flan-t5-xl\"}) by (stars)",
+          "format": "time_series",
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "RATINGS - GOOGLE FLAN-T5",
+      "transformations": [],
+      "transparent": true,
+      "type": "bargauge"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 5,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 7
       },
       "id": 16,
       "options": {
@@ -141,20 +148,25 @@
             "mode": "thresholds"
           },
           "mappings": [],
+          "max": 5,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "red",
                 "value": null
               },
               {
-                "color": "red",
-                "value": 80
+                "color": "orange",
+                "value": 2
+              },
+              {
+                "color": "green",
+                "value": 3.5
               }
             ]
-          },
-          "unit": "short"
+          }
         },
         "overrides": []
       },
@@ -162,12 +174,10 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 15
+        "y": 14
       },
       "id": 10,
-      "maxPerRow": 2,
       "options": {
-        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -204,16 +214,22 @@
             "mode": "thresholds"
           },
           "mappings": [],
+          "max": 5,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "red",
                 "value": null
               },
               {
-                "color": "red",
-                "value": 80
+                "color": "orange",
+                "value": 2
+              },
+              {
+                "color": "green",
+                "value": 3.5
               }
             ]
           }
@@ -224,11 +240,10 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 15
+        "y": 14
       },
       "id": 8,
       "options": {
-        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -276,8 +291,7 @@
                 "value": 80
               }
             ]
-          },
-          "unit": "short"
+          }
         },
         "overrides": []
       },
@@ -285,7 +299,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 22
+        "y": 21
       },
       "id": 12,
       "options": {
@@ -335,6 +349,8 @@
             "mode": "thresholds"
           },
           "mappings": [],
+          "max": 3,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -355,7 +371,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 22
+        "y": 21
       },
       "id": 14,
       "options": {
@@ -404,7 +420,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "tgis-llm-demo",
           "value": "tgis-llm-demo"
         },
@@ -453,5 +469,5 @@
   "timezone": "",
   "title": "MODEL FEEDBACK/RATING",
   "uid": "HtUdEp4Ik",
-  "version": 19
+  "version": 22
 }
