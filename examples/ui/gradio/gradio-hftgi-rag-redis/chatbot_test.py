@@ -21,13 +21,10 @@ for user in range(10):
     element_present = EC.presence_of_element_located((By.CSS_SELECTOR, "#component-0 .scroll-hide"))
     WebDriverWait(driver, timeout).until(element_present)
 
-    # User enters a question
+    # User enters the customer name
     customer_input = driver.find_element(By.CSS_SELECTOR, "#component-3 .scroll-hide")
     customer_input.clear()  # Clearing any previous input
     customer_input.send_keys(f"User {user + 1}: Apple") 
-
-    # Select options = new Select(driver.findElement(By.CLASS("#component-4 .options")));
-    # options.selectByVisibleText("Red Hat Openshift Data Science");
 
     dropdown = driver.find_element(By.CSS_SELECTOR, "#component-4 .secondary-wrap")
     dropdown.click()
@@ -45,7 +42,7 @@ for user in range(10):
 
     # label_id = "label[data-testid='2-radio-label']"
     WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, label_id))).click()
-    time.sleep(20)  # Adding a delay for better simulation of user interaction
+    time.sleep(10)  # Adding a delay for better simulation of user interaction
 
 # Close the browser after the loop completes
 #driver.quit()
