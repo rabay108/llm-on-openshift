@@ -49,8 +49,6 @@ start_http_server(8000)
 FEEDBACK_COUNTER = Counter("feedback_stars", "Number of feedbacks by stars", ["stars", "model_id"])
 MODEL_USAGE_COUNTER = Counter('model_usage', 'Number of times a model was used', ['model_id'])
 REQUEST_TIME = Gauge('request_duration_seconds', 'Time spent processing a request', ['model_id'])
-
-start_time = time.perf_counter() # start and end time to get the precise timing of the request
         
 def get_model_id():
     model_id = "Unavailable"
@@ -58,9 +56,6 @@ def get_model_id():
         r = requests.get(f'{INFERENCE_SERVER_URL}/info')
         if r.status_code == 200:
             model_id = r.json()['model_id']
-        end_time = time.perf_counter()
-        # Record successful request time
-        REQUEST_TIME.labels(model_id=model_id).set(end_time - start_time)
     except TimeoutError:  # or whatever exception your client throws on timeout
             end_time = time.perf_counter()
     return model_id
@@ -110,8 +105,12 @@ def stream(input_text, session_id) -> Generator:
         MODEL_USAGE_COUNTER.labels(model_id=model_id).inc() 
         # Call this function at the start of your application
         initialize_feedback_counters(model_id)
+        start_time = time.perf_counter() # start and end time to get the precise timing of the request
         resp = qa_chain({"query": input_text})
         sources = remove_source_duplicates(resp['source_documents'])
+        end_time = time.perf_counter()
+        # Record successful request time
+        REQUEST_TIME.labels(model_id=model_id).set(end_time - start_time)
         create_pdf(resp['result'], session_id)
         if len(sources) != 0:
             q.put("\n*Sources:* \n")
