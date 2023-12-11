@@ -13,7 +13,7 @@ import random
 from selenium.webdriver.support.ui import Select
 
 driver = webdriver.Firefox()
-driver.get("https://canary-gradio-vectordb.apps.ai-dev01.kni.syseng.devcluster.openshift.com")
+driver.get("https://llm-flan-tgis-llm-demo.apps.ai-dev01.kni.syseng.devcluster.openshift.com/")
 driver.set_window_size(1084, 811)
 timeout = 10
 
@@ -44,7 +44,7 @@ for user in range(10):
 
     # label_id = "label[data-testid='2-radio-label']"
     WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, label_id))).click()
-    time.sleep(10)  # Adding a delay for better simulation of user interaction
+    time.sleep(5)  # Adding a delay for better simulation of user interaction
 
 # Close the browser after the loop completes
 #driver.quit()
