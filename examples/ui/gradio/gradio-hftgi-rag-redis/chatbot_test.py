@@ -44,7 +44,7 @@ for user in range(10):
 
     # label_id = "label[data-testid='2-radio-label']"
     WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, label_id))).click()
-    time.sleep(5)  # Adding a delay for better simulation of user interaction
+    time.sleep(7)  # Adding a delay for better simulation of user interaction
 
 # Close the browser after the loop completes
 #driver.quit()
