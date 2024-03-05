@@ -21,22 +21,22 @@ rds = Redis.from_existing_index(
     schema="redis_schema.yaml"
 )
 
-prompt_template3 = """<s>[INST] <<SYS>>
-Instructions:
-- You are a helpful assistant in writing a project proposal for products owned by Red Hat for the company name provided in the question below.
-- Your job is to look at the  question and create the project proposal addressed to the company mentioned in question.
-- Base your answer on the provided context and question and not on prior knowledge.
-- The proposal should contain headings and sub-headings and each heading and sub-heading should be in bold.
-- Generate the project proposal in markdown language.
-- Each section in the proposal should contain only three items.
-- Proposal should be minimum of 500 lines.
-<</SYS>>
+# prompt_template3 = """<s>[INST] <<SYS>>
+# Instructions:
+# - You are a helpful assistant in writing a project proposal for products owned by Red Hat for the company name provided in the question below.
+# - Your job is to look at the  question and create the project proposal addressed to the company mentioned in question.
+# - Base your answer on the provided context and question and not on prior knowledge.
+# - The proposal should contain headings and sub-headings and each heading and sub-heading should be in bold.
+# - Generate the project proposal in markdown language.
+# - Each section in the proposal should contain only three items.
+# - Proposal should be minimum of 500 lines.
+# <</SYS>>
 
-Question: {question}
-Context: {context}
+# Question: {question}
+# Context: {context}
 
-[/INST]
-"""
+# [/INST]
+# """
 
 prompt_template = """
 ### [INST]
