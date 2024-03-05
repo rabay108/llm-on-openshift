@@ -27,7 +27,10 @@ RUN pip install --no-cache-dir -r requirements.txt && \
     fix-permissions /opt/app-root -P   
 
 COPY --chown=1001:0 app.py ./
-COPY --chown=1001:0 assets/ ./assets/ 
+COPY --chown=1001:0 assets/ ./assets/
+COPY --chown=1001:0 llm/ ./llm/ 
+COPY --chown=1001:0 utils/ ./utils/
+COPY --chown=1001:0 scheduler/ ./scheduler/
 
 EXPOSE 7860
 
