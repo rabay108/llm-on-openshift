@@ -5,7 +5,7 @@ from queue import Empty
 from threading import Thread
 import os
 from markdown import markdown
-from llm.llm_factory import LLMFactory
+from llm.llm_factory import LLMFactory, NVIDIA
 import pdfkit
 import uuid
 import threading
@@ -16,14 +16,15 @@ from utils import config_loader
 import llm.query_helper as QueryHelper
 from scheduler.round_robin import RoundRobinScheduler
 
+
 # initialization
 load_dotenv()
 config_loader.init_config()
 llm_factory = LLMFactory()
 llm_factory.init_providers(config_loader.config)
-provider_model_weightage_list = config_loader.get_provider_model_weightage_list()
+provider_model_weight_list = config_loader.get_provider_model_weight_list()
 # initialize scheduler
-sched = RoundRobinScheduler(provider_model_weightage_list)
+sched = RoundRobinScheduler(provider_model_weight_list)
 
 
 # Parameters
@@ -104,7 +105,7 @@ def stream(llm, q, input_text, session_id, model_id) -> Generator:
     # Get each new token from the queue and yield for our generator
     while True:
         try:
-            next_token = q.get(True, timeout=1)
+            next_token = q.get(True, timeout=100)
             if next_token is job_done:
                 break           
             if isinstance(next_token, str):
@@ -114,12 +115,13 @@ def stream(llm, q, input_text, session_id, model_id) -> Generator:
             continue
 
 # Gradio implementation
-def ask_llm(provider_model, customer, product):
+def ask_llm(provider_model, company, product):
     session_id = str(uuid.uuid4())
     provider_id, model_id = get_provider_model(provider_model)
     llm, q = llm_factory.get_llm(provider_id, model_id)
 
-    query = f"Generate a Sales Proposal for the product '{product}' to sell to company '{customer}' that includes overview, features, benefits, and support options"
+    query = f"Generate a sales proposal for the product '{product}', to sell to company '{company}' that includes overview, features, benefits, and support options."
+
     for next_token, content in stream(llm, q, query, session_id, model_id):
         # Generate the download link HTML
         download_link_html = f' <input type="hidden" id="pdf_file" name="pdf_file" value="/file={get_pdf_file(session_id)}" />'
@@ -138,89 +140,168 @@ def get_selected_provider():
     if config_loader.config.type == "round_robin":
         return sched.get_next()
     
-    provider_list = config_loader.get_provider_model_weightage_list()
+    provider_list = config_loader.get_provider_model_weight_list()
     if len(provider_list) > 0:
         return provider_list[0]
     
     return None
         
 # Gradio implementation
-css = "#output-container {font-size:0.8rem !important}"
-with gr.Blocks(title="HatBot") as demo:
-    provider_model_list = config_loader.get_provider_model_list()
-    provider_model_var = gr.State()
-    provider_visible = is_provider_visible()
-
-    with gr.Row():
-        with gr.Column(scale=1):
-            providers_dropdown = gr.Dropdown(label="Providers", choices=provider_model_list)  
-            customer_box = gr.Textbox(label="Customer", info="Enter the customer name")
-            product_dropdown = gr.Dropdown(
-             ["Red Hat OpenShift", "Red Hat OpenShift Data Science", "Red Hat AMQ Streams"], label="Product", info="Select the product to generate proposal"
-            )
-            with gr.Row():
-                submit_button = gr.Button("Generate")
-                clear_button = gr.LogoutButton(value="Clear", icon=None)
-            model_text = gr.HTML(visible=~provider_visible)
-
-            def update_models(selected_provider, provider_model):
-                provider_id, model_id = get_provider_model(selected_provider)
-                m=f"<div><span id='model_id'>Model: {model_id}</span></div>"
-                return {
-                    provider_model_var: selected_provider,
-                    model_text: m
-                }
-            
-            providers_dropdown.input(update_models, inputs=[providers_dropdown, provider_model_var], outputs=[provider_model_var,model_text])
-            radio = gr.Radio(["1", "2", "3", "4", "5"], label="Rate the model")
-            output_rating = gr.Textbox(elem_id="source-container", interactive=True, label="Rating")
-
-        with gr.Column(scale=2):
-            lines = 19
-            if provider_visible:
-                lines = 26
-            output_answer = gr.Textbox(label="Project Proposal", interactive=True, lines=lines, elem_id="output-container", scale=4, max_lines=lines)
-            download_button = gr.Button("Download as PDF")
-            download_link_html=gr.HTML(visible=False)
-
-    download_button.click(None, [], [], js="() => window.open(document.getElementById('pdf_file').value, '_blank')")
-    submit_button.click(ask_llm, inputs=[providers_dropdown, 
-                                         customer_box, 
-                                         product_dropdown], 
-                                outputs=[output_answer,
-                                         download_link_html])
-    clear_button.click(lambda: [None, None ,None , None, None], 
-                       inputs=[], 
-                       outputs=[customer_box,
-                                product_dropdown,
-                                output_answer,
-                                radio,
-                                output_rating])
-
-    @radio.input(inputs=[radio, provider_model_var], outputs=output_rating)
-    def get_feedback(star, provider_model):
-        provider_id, model_id = get_provider_model(provider_model)
-        print(f"Model: {provider_model}, Rating: {star}")
-        # Increment the counter based on the star rating received
-        FEEDBACK_COUNTER.labels(stars=str(star), model_id=model_id).inc()
-        return f"Received {star} star feedback. Thank you!"
-
-    def initialize(provider_model):
-        if provider_model is None:
-            provider_model_tuple = get_selected_provider()
-            if provider_model_tuple is not None:
-                provider_model = provider_model_tuple[0]
-        print(provider_model)
-        provider_id, model_id = get_provider_model(provider_model)
+css = """
+#output-container {font-size:0.8rem !important}
+"""
+with gr.Blocks(title="HatBot", css=css) as demo:
+    with gr.Tab("Chatbot"):
+        provider_model_list = config_loader.get_provider_model_list()
+        provider_model_var = gr.State()
         provider_visible = is_provider_visible()
-        p_dropdown = gr.Dropdown(choices=provider_model_list, label="Providers", visible=provider_visible, value=provider_model)
-        m=f"<div><span id='model_id'>Model: {model_id}</span></div>"
-        return {
-            providers_dropdown: p_dropdown,
-            provider_model_var: provider_model,
-            model_text: m
-        }
-    demo.load(initialize, inputs=[provider_model_var], outputs=[providers_dropdown,provider_model_var,model_text])
+
+        with gr.Row():
+            with gr.Column(scale=1):
+                providers_dropdown = gr.Dropdown(label="Providers", choices=provider_model_list)  
+                customer_box = gr.Textbox(label="Customer", info="Enter the customer name")
+                product_text_box = gr.Textbox(label="Product", info="Enter the Red Hat product name")
+                with gr.Row():
+                    submit_button = gr.Button("Generate")
+                    clear_button = gr.LogoutButton(value="Clear", icon=None)
+                model_text = gr.HTML(visible=~provider_visible)
+
+                def update_models(selected_provider, provider_model):
+                    provider_id, model_id = get_provider_model(selected_provider)
+                    m=f"<div><span id='model_id'>Model: {model_id}</span></div>"
+                    return {
+                        provider_model_var: selected_provider,
+                        model_text: m
+                    }
+                
+                providers_dropdown.input(update_models, inputs=[providers_dropdown, provider_model_var], outputs=[provider_model_var,model_text])
+                radio = gr.Radio(["1", "2", "3", "4", "5"], label="Rate the model")
+                output_rating = gr.Textbox(elem_id="source-container", interactive=True, label="Rating")
+
+            with gr.Column(scale=2):
+                lines = 19
+                if provider_visible:
+                    lines = 26
+                output_answer = gr.Textbox(label="Project Proposal", interactive=True, lines=lines, elem_id="output-container", scale=4, max_lines=lines)
+                download_button = gr.Button("Download as PDF")
+                download_link_html=gr.HTML(visible=False)
+
+        download_button.click(None, [], [], js="() => window.open(document.getElementById('pdf_file').value, '_blank')")
+        submit_button.click(ask_llm, inputs=[providers_dropdown, 
+                                            customer_box, 
+                                            product_text_box], 
+                                    outputs=[output_answer,
+                                            download_link_html])
+        clear_button.click(lambda: [None, None ,None , None, None], 
+                        inputs=[], 
+                        outputs=[customer_box,
+                                    product_text_box,
+                                    output_answer,
+                                    radio,
+                                    output_rating])
+
+        @radio.input(inputs=[radio, provider_model_var], outputs=output_rating)
+        def get_feedback(star, provider_model):
+            provider_id, model_id = get_provider_model(provider_model)
+            print(f"Model: {provider_model}, Rating: {star}")
+            # Increment the counter based on the star rating received
+            FEEDBACK_COUNTER.labels(stars=str(star), model_id=model_id).inc()
+            return f"Received {star} star feedback. Thank you!"
+
+    with gr.Tab(label="Add Provider", elem_classes="add-provider-tab"):
+        with gr.Row():
+            with gr.Column():
+                llm_providers = LLMFactory.get_providers()
+                add_provider_dropdown = gr.Dropdown(
+                                        choices=llm_providers, label="Providers", info="Select the LLM provider", elem_classes="add-provider-tab-components"
+                                    )
+                add_model_text_box = gr.Textbox(label="Model", info="Enter the model name", elem_classes="add-provider-tab-components")
+                add_url_text_box = gr.Textbox(label="URL", info="Enter the URL", elem_classes="add-provider-tab-components")
+                add_api_key_text_box = gr.Textbox(label="API Key", info="Enter the API Key", type="password", elem_classes="add-provider-tab-components")
+            with gr.Column():
+                add_deployment_type_dropdown = gr.Dropdown(
+                                        [ "Local", "Remote"], label="Deployment type", info="Model server deployment type", visible=False, elem_classes="add-provider-tab-components"
+                                    )
+                add_weight_text_box = gr.Textbox(label="Weight", info="Enter the weight", value=1, elem_classes="add-provider-tab-components")
+                add_param_temperature = gr.Textbox(label="Temperature", info="Enter the temperature", value=0.01, elem_classes="add-provider-tab-components")
+                add_param_max_tokens = gr.Textbox(label="Max Tokens", info="Enter the maximum number of tokens", value=512, elem_classes="add-provider-tab-components")
+
+                @add_provider_dropdown.change(inputs=[add_provider_dropdown], outputs=[add_deployment_type_dropdown])
+                def onChangeProviderSelection(provider_name):
+                    visible = True if provider_name == NVIDIA else False
+                    deployment_dropdown = gr.Dropdown(["Local", "Remote"],
+                                                                label="Deployment type",
+                                                                info="Model server deployment type",
+                                                                visible=visible,
+                                                                elem_classes="add-provider-tab-components")
+                    return {
+                        add_deployment_type_dropdown: deployment_dropdown
+                    }
+            
+        with gr.Row():
+            with gr.Column():
+                add_provider_submit_button = gr.Button("Add Provider", elem_classes="add-provider-tab-components")
+           
+        def initialize(provider_model):
+            if provider_model is None:
+                provider_model_tuple = get_selected_provider()
+                if provider_model_tuple is not None:
+                    provider_model = provider_model_tuple[0]
+            print(provider_model)
+            provider_id, model_id = get_provider_model(provider_model)
+            provider_visible = is_provider_visible()
+            p_dropdown = gr.Dropdown(choices=provider_model_list,
+                                    label="Providers",
+                                    visible=provider_visible,
+                                    value=provider_model)
+            m=f"<div><span id='model_id'>Model: {model_id}</span></div>"
+            return {
+                providers_dropdown: p_dropdown,
+                provider_model_var: provider_model,
+                model_text: m
+            }
+        @add_provider_submit_button.click(inputs=[provider_model_var, 
+                                                  add_provider_dropdown, 
+                                                  add_model_text_box, 
+                                                  add_url_text_box,
+                                                  add_api_key_text_box, 
+                                                  add_param_temperature, 
+                                                  add_param_max_tokens, 
+                                                  add_deployment_type_dropdown,
+                                                  add_weight_text_box,
+                                                  ],
+                                        outputs=[providers_dropdown])
+        def add_provider(selected_provider, 
+                         provider_name, 
+                         model_name, 
+                         url,
+                         api_key, 
+                         temperature,
+                         max_toxens,
+                         local_or_remote,
+                         weight=1):
+            if local_or_remote == "Remote" and provider_name == NVIDIA:
+                model_name = f"{local_or_remote}-{model_name}"
+
+            config_loader.add_provider_and_model(provider_name, 
+                                                model_name, 
+                                                url,
+                                                api_key,
+                                                float(temperature),
+                                                int(max_toxens),
+                                                int(weight))
+            llm_factory.init_providers(config_loader.config)
+            provider_model_list = config_loader.get_provider_model_list()
+            provider_visible = is_provider_visible()
+            p_dropdown = gr.Dropdown(choices=provider_model_list,
+                                      label="Providers", visible=provider_visible, 
+                                      value=selected_provider)
+            return {
+                    providers_dropdown: p_dropdown
+                }
+        demo.load(initialize,
+                   inputs=[provider_model_var],
+                   outputs=[providers_dropdown,provider_model_var,model_text])
 
 if __name__ == "__main__":
     demo.queue().launch(
