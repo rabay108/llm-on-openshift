@@ -6,35 +6,47 @@ from llm.openai_provider import OpenAIProvider
 from langchain.llms.base import LLM
 from queue import Queue
 
+HUGGING_FACE = "Hugging Face"
+NVIDIA = "NVIDIA"
+OPENAI = "OpenAI"
+
 class LLMFactory:
     _providers: dict[str, LLMProvider] = {}
     def __init__(self):
         pass
-        #self._init_providers()
 
     def _create_key(self, provider, model):
         return f"{provider}:{model}"
     
     def init_providers(self, config):
+        self._providers = {}
         providers = config.llm_providers.providers
         for provider_name in providers:
             provider_cfg = providers[provider_name]
             for model_name in provider_cfg.models:
                 model_cfg = provider_cfg.models[model_name]
-                self._register_llm_provider(provider_cfg.name, model_cfg.name)
+                self._register_llm_provider(config, provider_cfg.name, model_cfg.name)
 
 
-    def _register_llm_provider(self, provider, model):
+    def _register_llm_provider(self, config, provider, model):
         key = self._create_key(provider, model)
-        self._providers[key] = self._create_llm_provider(provider, model)
+        self._providers[key] = self._create_llm_provider(config, provider, model)
 
+    def _get_NeMo_Provider(self, config, provider, model):
+        if model.startswith("Remote-"):
+            local_model = model.replace("Remote-", "")
+            provider_cfg = config.llm_providers.providers[provider]
+            for model_name in provider_cfg.models:
+                if model_name.lower() == local_model.lower():
+                    return NeMoProvider(provider, model_name, None)
+        return NeMoProvider(provider, model, None)
     
-    def _create_llm_provider(self, provider, model) -> LLMProvider:
-        if provider == 'OpenAI':
+    def _create_llm_provider(self, config, provider, model) -> LLMProvider:
+        if provider == OPENAI:
             return OpenAIProvider(provider, model, None)
-        elif provider == 'NeMo':
-            return NeMoProvider(provider, model, None)
-        elif provider == 'Hugging Face':
+        elif provider == NVIDIA:
+            return self._get_NeMo_Provider(config, provider, model)
+        elif provider == HUGGING_FACE:
             return HuggingFaceProvider(provider, model, None)
         else:
             raise ValueError(provider, model)
@@ -44,4 +56,8 @@ class LLMFactory:
         provider = self._providers[key]
         if provider is not None:
             return provider.get_llm()
+
+    @classmethod 
+    def get_providers(cls) -> list:
+        return [HUGGING_FACE, NVIDIA, OPENAI]
 
