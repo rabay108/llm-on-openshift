@@ -24,17 +24,14 @@ In the `deployment` folder, you will find the files necessary to deploy the appl
 - `deployment.yaml`: you must provide the URL of your inference server in the placeholder on L54 and Redis information on L56 and L58. Please feel free to modify other parameters as you see fit.
 - `service.yaml`
 - `route.yaml`
+- `provider-config.yaml`: This is a configuration file that contains the configuration of various providers. The current supported providers are
+  - Hugging Face
+  - OpenAI
+  - NVIDIA
 
 The different parameters you can/must pass as environment variables in the deployment are:
 
-- INFERENCE_SERVER_URL - mandatory
 - REDIS_URL - mandatory
 - REDIS_INDEX - mandarory
-- MAX_NEW_TOKENS - optional, default: 512
-- TOP_K - optional, default: 10
-- TOP_P - optional, default: 0.95
-- TYPICAL_P - optional, default: 0.95
-- TEMPERATURE - optional, default: 0.01
-- REPETITION_PENALTY - optional, default: 1.03
 
 The deployment replicas is set to 0 initially to let you properly fill in those parameters. Don't forget to scale it up if you want see something 😉!
