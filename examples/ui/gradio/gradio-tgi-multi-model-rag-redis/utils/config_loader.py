@@ -5,7 +5,7 @@ from io import TextIOBase
 import os
 
 import yaml
-from utils.config import Config
+from utils.config import Config, ModelConfig, ProviderConfig
 
 config = None
 llm_config = None
@@ -58,7 +58,7 @@ def get_provider_model_dict():
                     provider_model_list[provider_name] = models
     return provider_model_list
 
-def get_provider_model_weightage_list():
+def get_provider_model_weight_list():
     provider_model_list = []
     if config.type == "default":
         provider_model_name = get_default_provider_model()
@@ -94,3 +94,40 @@ def get_provider_model_list():
 
 def get_default_provider_model():
     return f"{get_default_provider()}: {get_default_model()}"
+
+def add_provider_and_model(provider_name: str, 
+                           model_name: str, 
+                           url: str, 
+                           api_key: str, 
+                           temperature: float,
+                            max_toxens: int, 
+                            weight: int):
+    
+    provider_cfg = config.llm_providers.providers.get(provider_name)
+    if provider_cfg is None:
+        # create a dictionary for provider config
+        provider_dict = dict({"name": provider_name,
+                            "enabled": True})
+        provider_cfg = ProviderConfig(provider_dict)
+        config.llm_providers.providers[provider_name] = provider_cfg
+    
+    # For now we will over write the model config all the time
+    params_dict = [{
+                    "name": "temperature",
+                    "value": temperature,
+                },
+                {
+                    "name": "max_toxens",
+                     "value": max_toxens,
+                }]
+    
+    model_dict = dict({ "name" : model_name,
+                        "url": url,
+                        "weight" : weight,
+                        "credentials": api_key,
+                        "enabled" : True,
+                        "params" : params_dict,
+                    })
+    
+    model_cfg = ModelConfig(model_dict)
+    provider_cfg.models[model_name]  = model_cfg
