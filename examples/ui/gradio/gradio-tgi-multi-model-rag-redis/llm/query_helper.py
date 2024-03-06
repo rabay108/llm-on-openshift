@@ -53,8 +53,7 @@ Here is context to help:
 {context}
 
 ### QUESTION:
-Question: Generaer a project proposal for selling Red Hat OpenShift to Microsoft.
-Context: 
+Question: {question}
 
 [/INST]
 """
