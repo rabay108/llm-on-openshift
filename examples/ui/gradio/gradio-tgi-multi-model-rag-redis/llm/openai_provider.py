@@ -5,7 +5,6 @@ from llm.llm_provider import LLMProvider, QueueCallback
 from queue import Queue
 import os
 
-
 class OpenAIProvider(LLMProvider):
   def __init__(self, provider, model, params):
     super().__init__(provider, model, params)
@@ -15,7 +14,7 @@ class OpenAIProvider(LLMProvider):
     print(f"[{inspect.stack()[0][3]}] Creating OpenAI LLM instance")
     try:
         #from langchain.llms import OpenAI
-        from langchain.chat_models import ChatOpenAI
+        from langchain_openai import ChatOpenAI
     except Exception as e:
         print(
             "Missing openai libraries. Openai provider will be unavailable."
