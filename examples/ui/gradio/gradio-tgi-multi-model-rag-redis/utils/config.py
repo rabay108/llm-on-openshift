@@ -56,10 +56,10 @@ class ProviderConfig():
         self.url = data.get("url", None)
         self.credentials = _get_attribute_from_file(data, "credentials_path")
         self.enabled = data.get("enabled", True)
-
-        for m in data["models"]:
-            model = ModelConfig(m)
-            self.models[m["name"]] = model
+        if "models" in data:
+            for m in data["models"]:
+                model = ModelConfig(m)
+                self.models[m["name"]] = model
 
 class LLMProviders():
     """LLM providers configuration."""
