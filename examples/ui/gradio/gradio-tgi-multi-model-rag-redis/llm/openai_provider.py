@@ -31,14 +31,13 @@ class OpenAIProvider(LLMProvider):
           "cache": None,
           "streaming": True,
           "temperature": 0.01,
-          "max_tokens": 512,
           # "top_p": 0.95,
           "verbose": False,
           "callbacks": [QueueCallback(self._queue)]
       }
       os.environ["OPENAI_API_KEY"] =  self._get_llm_credentials()
-      if self.model_config.params:
-        params.update(self.model_config.params)  # override parameters
+      # if self.model_config.params:
+      #   params.update(self.model_config.params)  # override parameters
 
       self._llm_instance = ChatOpenAI(**params)
 
