@@ -25,7 +25,7 @@ class OpenAIProvider(LLMProvider):
           "base_url": self._get_llm_url("https://api.openai.com/v1"),
           "openai_api_key": self._get_llm_credentials(),
           "model": self.model,
-          "model_kwargs": {},  # TODO: add model args
+#          "model_kwargs": {},  # TODO: add model args
           "organization": None,
           "timeout": None,
           "cache": None,
