@@ -3,6 +3,11 @@ from langchain.prompts import PromptTemplate
 import os
 from langchain.vectorstores.redis import Redis
 from langchain.chains import RetrievalQA
+from langchain_core.documents import Document
+from langchain.schema.retriever import BaseRetriever
+from typing import List
+from langchain_core.callbacks import CallbackManagerForRetrieverRun
+from langchain_community.vectorstores.faiss import FAISS
 
 
 REDIS_URL = os.getenv('REDIS_URL')
@@ -14,12 +19,8 @@ REDIS_INDEX = os.getenv('REDIS_INDEX')
 
 # Document store: Redis vector store
 embeddings = HuggingFaceEmbeddings()
-rds = Redis.from_existing_index(
-    embeddings,
-    redis_url=REDIS_URL,
-    index_name=REDIS_INDEX,
-    schema="redis_schema.yaml"
-)
+rds = None
+retriever = None
 
 # prompt_template3 = """<s>[INST] <<SYS>>
 # Instructions:
@@ -63,11 +64,31 @@ QA_CHAIN_PROMPT = PromptTemplate(
     input_variables=["context", "question"])
 
 def get_qa_chain(llm):
+    global rds
+    global retriever
+    if rds is None:
+        try:
+            rds = Redis.from_existing_index(
+                embeddings,
+                redis_url=REDIS_URL,
+                index_name=REDIS_INDEX,
+                schema="redis_schema.yaml"
+            )
+            retriever = rds.as_retriever(
+                            search_type="similarity",
+                            search_kwargs={"k": 4, "distance_threshold": 0.5})
+        except Exception as e:
+            print(e)
+            print(
+                "Redis server is unavailable. Project proposal will be generated without RAG content."
+            )
+            #TODO
+            db = FAISS.from_texts(["dummy"], embeddings)
+            retriever = db.as_retriever()
+
     return RetrievalQA.from_chain_type(
         llm,
-        retriever=rds.as_retriever(
-        search_type="similarity",
-        search_kwargs={"k": 4, "distance_threshold": 0.5}),
+        retriever=retriever,
         chain_type_kwargs={"prompt": QA_CHAIN_PROMPT},
         return_source_documents=True
     )
