@@ -3,6 +3,7 @@ import inspect
 import os
 from queue import Queue
 from langchain.llms.base import LLM
+from llm.huggingface_text_gen_inference import HuggingFaceTextGenInference
 from llm.llm_provider import LLMProvider, QueueCallback
 #from langchain_core.callbacks.manager import CallbackManager
 # Streaming implementation
