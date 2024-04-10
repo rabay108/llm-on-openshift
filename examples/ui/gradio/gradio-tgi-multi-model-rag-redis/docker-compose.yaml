@@ -6,9 +6,9 @@ services:
     platform: linux/amd64
     environment:
       - APP_TITLE="Talk with your documentation"                                                     
-      - INFERENCE_SERVER_URL=http://mistral-mistral.apps.ai-dev01.kni.syseng.devcluster.openshift.com
+      - INFERENCE_SERVER_URL=<<INFERENCE_SERVER_URL>>
       - REDIS_INDEX=docs
-      - REDIS_URL=redis://default:ZGCciPAe@host.docker.internal:11993
+      - REDIS_URL=<<REDIS_SERVER_URL>>
       - MAX_NEW_TOKENS=1024
       - TOP_K=10
       - TOP_P=0.95
