@@ -49,19 +49,19 @@ class NeMoProvider(LLMProvider):
       params: dict = {
           "base_url": self._get_llm_url(""),
           "model": self.model,
-          "model_kwargs": {},  # TODO: add model args
+  #        "model_kwargs": {},  # TODO: add model args
           "organization": None,
           "timeout": None,
           "cache": None,
           "streaming": True,
           "temperature": 0.01,
-          "max_tokens": 512,
+         # "max_new_tokens": 512,
           #"top_p": 0.95,
           "verbose": True,
           "callbacks": [QueueCallback(self._queue)]
       }
-      if self.model_config.params:
-        params.update(self.model_config.params)
+      # if self.model_config.params:
+      #   params.update(self.model_config.params)
       os.environ["OPENAI_API_KEY"] =  creds
 
       if self.model.startswith("Remote-"):
