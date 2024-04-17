@@ -16,7 +16,6 @@ from utils import config_loader
 import llm.query_helper as QueryHelper
 from scheduler.round_robin import RoundRobinScheduler
 import pandas as pd
-from gradio_modal import Modal
 
 os.environ["REQUESTS_CA_BUNDLE"] = ""
 # initialization
