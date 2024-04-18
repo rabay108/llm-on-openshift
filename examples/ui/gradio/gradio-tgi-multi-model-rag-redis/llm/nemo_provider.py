@@ -55,7 +55,7 @@ class NeMoProvider(LLMProvider):
           "cache": None,
           "streaming": True,
           "temperature": 0.01,
-         # "max_new_tokens": 512,
+          "max_tokens": 512,
           #"top_p": 0.95,
           "verbose": True,
           "callbacks": [QueueCallback(self._queue)]
