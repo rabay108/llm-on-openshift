@@ -19,19 +19,19 @@ class HuggingFaceProvider(LLMProvider):
     print(
         f"[{inspect.stack()[0][3]}] Creating Hugging Face TGI LLM instance"
     )
-    try:
-        from langchain.llms import HuggingFaceTextGenInference
-    except Exception as e:
-        print(
-            "Missing HuggingFaceTextGenInference libraries. HuggingFaceTextGenInference "
-            "provider will be unavailable."
-        )
-        raise e
+    # try:
+    #     from langchain.llms import HuggingFaceTextGenInference
+    # except Exception as e:
+    #     print(
+    #         "Missing HuggingFaceTextGenInference libraries. HuggingFaceTextGenInference "
+    #         "provider will be unavailable."
+    #     )
+    #     raise e
     if self._llm_instance is None:
       params: dict = {
           "inference_server_url": self._get_llm_url(""),
-          "model_kwargs": {},  # TODO: add model args
-          "max_new_tokens": 512,
+#         "model_kwargs": {},  # TODO: add model args
+#          "max_new_tokens": 512,
           "cache": None,
           "temperature": 0.01,
           "top_k": 10,
@@ -41,8 +41,8 @@ class HuggingFaceProvider(LLMProvider):
           "verbose": False,
           "callbacks": [QueueCallback(self._queue)]
       }
-      if self.model_config.params:
-        params.update(self.model_config.params)  # override parameters
+      # if self.model_config.params:
+      #   params.update(self.model_config.params)  # override parameters
       self._llm_instance = HuggingFaceTextGenInference(**params)
 
     print(
