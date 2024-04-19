@@ -60,4 +60,3 @@ class LLMFactory:
     @classmethod 
     def get_providers(cls) -> list:
         return [HUGGING_FACE, NVIDIA, OPENAI]
-
