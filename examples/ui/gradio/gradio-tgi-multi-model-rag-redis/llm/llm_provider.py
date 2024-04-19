@@ -69,7 +69,6 @@ class LLMProvider:
         self.model_config = self.provider_config.models.get(self.model)
 
     
-    # TODO: refactor after config implementation OLS-89
     def _get_provider_config(self) -> ProviderConfig:
         cfg = config_loader.llm_config.providers.get(self.provider)
         if not cfg:

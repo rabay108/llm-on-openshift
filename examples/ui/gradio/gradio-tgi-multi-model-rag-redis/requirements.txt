@@ -102,4 +102,5 @@ langchain_community==0.0.21; python_version >= '3.8'
 langchain-openai==0.0.6; python_version >= '3.8'
 text_generation==0.6.1; python_version >= '3.8'
 faiss-cpu
-
+pgvector==0.2.5; python_version >= '3.8'
+psycopg[binary,pool]==3.1.18; python_version >= '3.8'
