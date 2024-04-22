@@ -347,7 +347,7 @@ with gr.Blocks(title="HatBot", css=css) as demo:
             dataframe_ui = gr.Dataframe(value=df, interactive=False)
             add_btn = gr.Button("Add Provider", elem_classes="add_provider_bu")
 
-        with gr.Accordion("Add / Update Provider"):
+        with gr.Accordion(label="Add Provider",visible=False) as add_provider_accordian:
             with gr.Blocks() as add_provider_table:
                 with gr.Row():
                     with gr.Column():
@@ -407,7 +407,7 @@ with gr.Blocks(title="HatBot", css=css) as demo:
                             outputs=[add_deployment_type_dropdown],
                         )
                         def onChangeProviderSelection(provider_name):
-                            visible = True if provider_name == NVIDIA else False
+                            visible = False
                             deployment_dropdown = gr.Dropdown(
                                 ["Local", "Remote"],
                                 label="Deployment type",
@@ -442,6 +442,7 @@ with gr.Blocks(title="HatBot", css=css) as demo:
                             enable_checkbox,
                             delete_button,
                             add_provider_submit_button,
+                            add_provider_accordian,
                         ],
                     )
                     def delete_provider(provider, model):
@@ -481,6 +482,9 @@ with gr.Blocks(title="HatBot", css=css) as demo:
                             ),
                             add_provider_submit_button: gr.Button(
                                 "Add", elem_classes="add_provider_bu"
+                            ),
+                            add_provider_accordian: gr.Accordion(
+                                visible=False
                             ),
                         }
 
@@ -532,6 +536,9 @@ with gr.Blocks(title="HatBot", css=css) as demo:
                     add_provider_submit_button: gr.Button(
                         "Update", elem_classes="add_provider_bu"
                     ),
+                    add_provider_accordian: gr.Accordion(
+                        label="Modify Provider",visible=True
+                    ),
                 }
 
             dataframe_ui.select(
@@ -547,6 +554,7 @@ with gr.Blocks(title="HatBot", css=css) as demo:
                     enable_checkbox,
                     delete_button,
                     add_provider_submit_button,
+                    add_provider_accordian,
                 ],
             )
 
@@ -572,6 +580,9 @@ with gr.Blocks(title="HatBot", css=css) as demo:
                     add_provider_submit_button: gr.Button(
                         "Add", elem_classes="add_provider_bu"
                     ),
+                    add_provider_accordian: gr.Accordion(
+                        label="Add Provider",visible=True
+                    ),
                 }
 
             add_btn.click(
@@ -587,6 +598,7 @@ with gr.Blocks(title="HatBot", css=css) as demo:
                     enable_checkbox,
                     delete_button,
                     add_provider_submit_button,
+                    add_provider_accordian,
                 ],
             )
 
@@ -717,6 +729,9 @@ with gr.Blocks(title="HatBot", css=css) as demo:
                 add_provider_submit_button: gr.Button(
                     "Add", elem_classes="add_provider_bu"
                 ),
+                add_provider_accordian: gr.Accordion(
+                        label="Modify Provider",visible=False
+                ),
             }
 
         add_provider_submit_button.click(
@@ -756,6 +771,7 @@ with gr.Blocks(title="HatBot", css=css) as demo:
                 dataframe_ui,
                 delete_button,
                 add_provider_submit_button,
+                add_provider_accordian,
             ],
         )
 
