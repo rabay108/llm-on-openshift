@@ -42,7 +42,7 @@ class NeMoProvider(LLMProvider):
       )
       raise e
     creds = self._get_llm_credentials()
-    if creds is None:
+    if creds in (None, ''):
         creds = "dummy-api-key" # ChatOpenAI requires creds to be not none
     if self._llm_instance is None:
       # Creating an object of custom handler
@@ -65,21 +65,23 @@ class NeMoProvider(LLMProvider):
       os.environ["OPENAI_API_KEY"] =  creds
 
       if self.model.startswith("Remote-"):
-        client = httpx.Client(event_hooks={'request': [log_request, update_base_url], 'response': [log_response]})
+        httpx_client = httpx.Client(event_hooks={'request': [log_request, update_base_url], 'response': [log_response]})
         client = OpenAI(
             base_url=self._get_llm_url(""),
-            http_client=client,
+            http_client=httpx_client,
         )
 
         async_client = AsyncOpenAI(
             base_url=self._get_llm_url(""),
-            http_client=client,
+            http_client=httpx_client,
         )
         params["client"] = client.chat.completions
         params["async_client"] = async_client.chat.completions
         self._llm_instance = ChatOpenAILocal(**params)
       else:
-        self._llm_instance = ChatOpenAI(**params)
+        async_client=httpx.AsyncClient(verify=False)
+        http_client=httpx.Client(verify=False)
+        self._llm_instance = ChatOpenAI(**params, async_client=async_client, http_client=http_client)
 
     print(f"[{inspect.stack()[0][3]}] OpenAI LLM instance {self._llm_instance}")
     return self._llm_instance

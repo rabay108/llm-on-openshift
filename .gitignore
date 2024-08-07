@@ -4,3 +4,4 @@
 .vscode
 .DS_Store
 **/*.pdf
+examples/ui/gradio/gradio-hftgi-rag-redis/.venv/**
