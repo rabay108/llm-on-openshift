@@ -11,10 +11,12 @@ from vector_db.db_provider import DBProvider
 from vector_db.faiss_provider import FAISSProvider
 from vector_db.pgvector_provider import PGVectorProvider
 from vector_db.redis_provider import RedisProvider
+from vector_db.elastic_provider import ElasticProvider
 
 PGVECTOR = "PGVECTOR"
 REDIS = "REDIS"
 FAISS = "FAISS"
+ELASTIC = "ELASTIC"
 
 class DBFactory:
     providers: dict[str, DBProvider] = {}
@@ -28,6 +30,8 @@ class DBFactory:
             return RedisProvider()
         elif type == FAISS:
             return FAISSProvider()
+        elif type == ELASTIC:
+            return ElasticProvider()
         else:
             raise ValueError(type)
 
@@ -42,4 +46,4 @@ class DBFactory:
 
     @classmethod 
     def get_providers(cls) -> list[str]:
-        return [PGVECTOR, REDIS, FAISS]
+        return [PGVECTOR, REDIS, FAISS, ELASTIC]

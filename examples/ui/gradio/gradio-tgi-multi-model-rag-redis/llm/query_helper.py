@@ -40,6 +40,7 @@ def get_qa_chain(llm):
         type = os.getenv("DB_TYPE") if os.getenv("DB_TYPE") else "REDIS"
         if type is None:
             raise ValueError("DB_TYPE is not specified")
+        print(f"Retriever DB: {type}")
         retriever = db_factory.get_retriever(type)
     except Exception as e:
         print(e)
