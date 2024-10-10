@@ -2,7 +2,7 @@ from typing import Optional, Tuple
 import inspect
 from langchain.llms.base import LLM
 from openai import AsyncOpenAI
-from llm.llm_provider import LLMProvider, QueueCallback
+from llm.llm_provider import LLMProvider
 from queue import Queue
 import os
 import httpx
@@ -30,7 +30,7 @@ class NeMoProvider(LLMProvider):
     super().__init__(provider, model, params)
     pass
 
-  def _nemo_llm_instance(self) -> LLM:
+  def _nemo_llm_instance(self, callback) -> LLM:
     print(f"[{inspect.stack()[0][3]}] Creating OpenAI LLM instance")
     try:
       from langchain.chat_models import ChatOpenAI
@@ -44,47 +44,47 @@ class NeMoProvider(LLMProvider):
     creds = self._get_llm_credentials()
     if creds in (None, ''):
         creds = "dummy-api-key" # ChatOpenAI requires creds to be not none
-    if self._llm_instance is None:
+
       # Creating an object of custom handler
-      params: dict = {
-          "base_url": self._get_llm_url(""),
-          "model": self.model,
-  #        "model_kwargs": {},  # TODO: add model args
-          "organization": None,
-          "timeout": None,
-          "cache": None,
-          "streaming": True,
-          "temperature": 0.01,
-          "max_tokens": 512,
-          #"top_p": 0.95,
-          "verbose": True,
-          "callbacks": [QueueCallback(self._queue)]
-      }
-      # if self.model_config.params:
-      #   params.update(self.model_config.params)
-      os.environ["OPENAI_API_KEY"] =  creds
+    params: dict = {
+        "base_url": self._get_llm_url(""),
+        "model": self.model,
+#        "model_kwargs": {},  # TODO: add model args
+        "organization": None,
+        "timeout": None,
+        "cache": None,
+        "streaming": True,
+        "temperature": 0.01,
+        "max_tokens": 512,
+        #"top_p": 0.95,
+        "verbose": True,
+        "callbacks": [callback]
+    }
+    # if self.model_config.params:
+    #   params.update(self.model_config.params)
+    os.environ["OPENAI_API_KEY"] =  creds
 
-      if self.model.startswith("Remote-"):
-        httpx_client = httpx.Client(event_hooks={'request': [log_request, update_base_url], 'response': [log_response]})
-        client = OpenAI(
-            base_url=self._get_llm_url(""),
-            http_client=httpx_client,
-        )
+    if self.model.startswith("Remote-"):
+      httpx_client = httpx.Client(event_hooks={'request': [log_request, update_base_url], 'response': [log_response]})
+      client = OpenAI(
+          base_url=self._get_llm_url(""),
+          http_client=httpx_client,
+      )
 
-        async_client = AsyncOpenAI(
-            base_url=self._get_llm_url(""),
-            http_client=httpx_client,
-        )
-        params["client"] = client.chat.completions
-        params["async_client"] = async_client.chat.completions
-        self._llm_instance = ChatOpenAILocal(**params)
-      else:
-        async_client=httpx.AsyncClient(verify=False)
-        http_client=httpx.Client(verify=False)
-        self._llm_instance = ChatOpenAI(**params, async_client=async_client, http_client=http_client)
+      async_client = AsyncOpenAI(
+          base_url=self._get_llm_url(""),
+          http_client=httpx_client,
+      )
+      params["client"] = client.chat.completions
+      params["async_client"] = async_client.chat.completions
+      self._llm_instance = ChatOpenAILocal(**params)
+    else:
+      async_client=httpx.AsyncClient(verify=False)
+      http_client=httpx.Client(verify=False)
+      self._llm_instance = ChatOpenAI(**params, async_client=async_client, http_client=http_client)
 
     print(f"[{inspect.stack()[0][3]}] OpenAI LLM instance {self._llm_instance}")
     return self._llm_instance
 
-  def get_llm(self) -> Tuple[LLM, Queue]:
-    return self._nemo_llm_instance(), self._queue
+  def get_llm(self, callback) -> LLM:
+    return self._nemo_llm_instance(callback)

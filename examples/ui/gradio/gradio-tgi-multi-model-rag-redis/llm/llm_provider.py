@@ -3,8 +3,6 @@
 from typing import Optional, Tuple
 from utils import config_loader
 from langchain.llms.base import LLM
-from queue import Queue
-from langchain.callbacks.base import BaseCallbackHandler
 
 from utils.config import ProviderConfig
 
@@ -31,18 +29,6 @@ class ModelConfigMissingError(LLMConfigurationError):
 class ModelConfigInvalidError(LLMConfigurationError):
     """Model configuration is not valid."""
 
-class QueueCallback(BaseCallbackHandler):
-    """Callback handler for streaming LLM responses to a queue."""
-
-    def __init__(self, q):
-        self.q = q
-
-    def on_llm_new_token(self, token: str, **kwargs: any) -> None:
-        self.q.put(token)
-
-    def on_llm_end(self, *args, **kwargs: any) -> None:
-        return self.q.empty()
-
 
 class LLMProvider:
     """Load LLM backend.
@@ -54,7 +40,6 @@ class LLMProvider:
         model: Optional[str] = None,
         params: Optional[dict] = None,
     ) -> None:
-        self._queue = Queue()
         if provider is None:
             msg = "Missing provider"
             print(msg)
@@ -86,7 +71,7 @@ class LLMProvider:
             raise ModelConfigMissingError(msg)
         return cfg
 
-    def get_llm(self) -> Tuple[LLM, Queue]:
+    def get_llm(self, callback) -> LLM:
       return None, None
     
     def _get_llm_url(self, default: str) -> str:

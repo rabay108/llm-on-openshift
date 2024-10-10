@@ -4,7 +4,6 @@ from llm.llm_provider import LLMProvider
 from llm.nemo_provider import NeMoProvider
 from llm.openai_provider import OpenAIProvider
 from langchain.llms.base import LLM
-from queue import Queue
 
 from llm.openshift_ai_vllm import OpenShiftAIvLLM
 
@@ -56,11 +55,11 @@ class LLMFactory:
         else:
             raise ValueError(provider, model)
         
-    def get_llm(self, provider, model) -> Tuple[LLM, Queue]:
+    def get_llm(self, provider, model, callback) -> LLM:
         key = self._create_key(provider, model)
         provider = self._providers[key]
         if provider is not None:
-            return provider.get_llm()
+            return provider.get_llm(callback)
 
     @classmethod 
     def get_providers(cls) -> list:
