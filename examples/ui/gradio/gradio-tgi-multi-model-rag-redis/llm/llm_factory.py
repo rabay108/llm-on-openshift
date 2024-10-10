@@ -4,11 +4,13 @@ from llm.llm_provider import LLMProvider
 from llm.nemo_provider import NeMoProvider
 from llm.openai_provider import OpenAIProvider
 from langchain.llms.base import LLM
-from queue import Queue
+
+from llm.openshift_ai_vllm import OpenShiftAIvLLM
 
 HUGGING_FACE = "Hugging Face"
 NVIDIA = "NVIDIA"
 OPENAI = "OpenAI"
+OPENSHIFT_AI_VLLM="OpenShift AI (vLLM)"
 
 class LLMFactory:
     _providers: dict[str, LLMProvider] = {}
@@ -48,15 +50,17 @@ class LLMFactory:
             return self._get_NeMo_Provider(config, provider, model)
         elif provider == HUGGING_FACE:
             return HuggingFaceProvider(provider, model, None)
+        elif provider == OPENSHIFT_AI_VLLM:
+            return OpenShiftAIvLLM(provider, model, None)
         else:
             raise ValueError(provider, model)
         
-    def get_llm(self, provider, model) -> Tuple[LLM, Queue]:
+    def get_llm(self, provider, model, callback) -> LLM:
         key = self._create_key(provider, model)
         provider = self._providers[key]
         if provider is not None:
-            return provider.get_llm()
+            return provider.get_llm(callback)
 
     @classmethod 
     def get_providers(cls) -> list:
-        return [HUGGING_FACE, NVIDIA, OPENAI]
+        return [HUGGING_FACE, NVIDIA, OPENAI, OPENSHIFT_AI_VLLM]

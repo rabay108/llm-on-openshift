@@ -1,7 +1,7 @@
 import os
 import time
 from collections.abc import Generator
-from queue import Empty
+from queue import Empty, Queue
 from threading import Thread
 import os
 from markdown import markdown
@@ -16,6 +16,9 @@ from utils import config_loader
 import llm.query_helper as QueryHelper
 from scheduler.round_robin import RoundRobinScheduler
 import pandas as pd
+from utils.callback import QueueCallback
+
+que = Queue()
 
 os.environ["REQUESTS_CA_BUNDLE"] = ""
 # initialization
@@ -87,7 +90,7 @@ def remove_source_duplicates(input_list):
 lock = threading.Lock()
 
 
-def stream(llm, q, input_text, session_id, model_id) -> Generator:
+def stream(llm, que, input_text, session_id, model_id) -> Generator:
     # Create a Queue
     job_done = object()
 
@@ -109,14 +112,14 @@ def stream(llm, q, input_text, session_id, model_id) -> Generator:
                 REQUEST_TIME.labels(model_id=model_id).set(end_time - start_time)
                 create_pdf(resp["result"], session_id)
                 if len(sources) != 0:
-                    q.put("\n*Sources:* \n")
+                    que.put("\n*Sources:* \n")
                     for source in sources:
-                        q.put("* " + str(source) + "\n")
+                        que.put("* " + str(source) + "\n")
             except Exception as e:
                 print(e)
-                q.put("Error executing request. Contact the administrator.")
+                que.put("Error executing request. Contact the administrator.")
 
-            q.put(job_done)
+            que.put(job_done)
 
     # Create a thread and start the function
     t = Thread(target=task)
@@ -127,7 +130,7 @@ def stream(llm, q, input_text, session_id, model_id) -> Generator:
     # Get each new token from the queue and yield for our generator
     while True:
         try:
-            next_token = q.get(True, timeout=100)
+            next_token = que.get(True, timeout=100)
             if next_token is job_done:
                 break
             if isinstance(next_token, str):
@@ -139,13 +142,16 @@ def stream(llm, q, input_text, session_id, model_id) -> Generator:
 
 # Gradio implementation
 def ask_llm(provider_model, company, product):
+    que = Queue()
+    callback = QueueCallback(que)
     session_id = str(uuid.uuid4())
     provider_id, model_id = get_provider_model(provider_model)
-    llm, q = llm_factory.get_llm(provider_id, model_id)
+    llm = llm_factory.get_llm(provider_id, model_id, callback)
 
-    query = f"Generate a sales proposal for the product '{product}', to sell to company '{company}' that includes overview, features, benefits, and support options."
+    query = f"Generate a sales proposal for the product '{product}', to sell to company '{company}' that includes overview, features, benefits, and support options of the product '{product}'."
+    print (query)
 
-    for next_token, content in stream(llm, q, query, session_id, model_id):
+    for next_token, content in stream(llm, que, query, session_id, model_id):
         # Generate the download link HTML
         download_link_html = f' <input type="hidden" id="pdf_file" name="pdf_file" value="/file={get_pdf_file(session_id)}" />'
         yield content, download_link_html
@@ -521,8 +527,8 @@ with gr.Blocks(title="HatBot", css=css) as demo:
                         else ""
                     ),
                     add_param_max_tokens: (
-                        model_cfg.params["max_new_toxens"]
-                        if model_cfg.params and "max_new_toxens" in model_cfg.params
+                        model_cfg.params["max_new_tokens"]
+                        if model_cfg.params and "max_new_tokens" in model_cfg.params
                         else ""
                     ),
                     enable_checkbox: (
