@@ -90,11 +90,9 @@ def remove_source_duplicates(input_list):
 lock = threading.Lock()
 
 
-def stream(llm, que, input_text, session_id, model_id) -> Generator:
+def stream(chain, que, model_input: dict, session_id, model_id) -> Generator:
     # Create a Queue
     job_done = object()
-
-    qa_chain = QueryHelper.get_qa_chain(llm)
 
     # Create a function to call - this will run in a thread
     def task():
@@ -106,7 +104,7 @@ def stream(llm, que, input_text, session_id, model_id) -> Generator:
                 time.perf_counter()
             )  # start and end time to get the precise timing of the request
             try:
-                resp = qa_chain.invoke({"query": input_text})
+                resp = chain.invoke(input=model_input)
                 end_time = time.perf_counter()
                 sources = remove_source_duplicates(resp["source_documents"])
                 REQUEST_TIME.labels(model_id=model_id).set(end_time - start_time)
@@ -141,21 +139,35 @@ def stream(llm, que, input_text, session_id, model_id) -> Generator:
 
 
 # Gradio implementation
-def ask_llm(provider_model, company, product):
+def ask_llm(provider_model, model_input, chain_without_llm):
     que = Queue()
     callback = QueueCallback(que)
     session_id = str(uuid.uuid4())
     provider_id, model_id = get_provider_model(provider_model)
     llm = llm_factory.get_llm(provider_id, model_id, callback)
+    chain = chain_without_llm(llm)
 
-    query = f"Generate a sales proposal for the product '{product}', to sell to company '{company}' that includes overview, features, benefits, and support options of the product '{product}'."
-    print (query)
-
-    for next_token, content in stream(llm, que, query, session_id, model_id):
+    for next_token, content in stream(chain, que, model_input, session_id, model_id):
         # Generate the download link HTML
         download_link_html = f' <input type="hidden" id="pdf_file" name="pdf_file" value="/file={get_pdf_file(session_id)}" />'
         yield content, download_link_html
 
+def generate_proposal(provider_model, company, product):
+    chain_without_llm = QueryHelper.get_qa_chain
+
+    query = f"Generate a sales proposal for the product '{product}', to sell to company '{company}' that includes overview, features, benefits, and support options of the product '{product}'."
+    model_input = {'query': query}
+    
+    for content, download_link_html in ask_llm(provider_model, model_input, chain_without_llm):
+        yield content, download_link_html
+    
+def update_proposal(provider_model: str, old_proposal: str, user_query: str):
+    chain_without_llm = QueryHelper.get_update_proposal_chain
+    
+    model_input = {'old_proposal': old_proposal, 'user_query': user_query}
+    
+    for content, download_link_html in ask_llm(provider_model, model_input, chain_without_llm):
+        yield content, download_link_html
 
 def get_provider_model(provider_model):
     if provider_model is None:
@@ -267,7 +279,11 @@ with gr.Blocks(title="HatBot", css=css) as demo:
                     scale=4,
                     max_lines=lines,
                 )
-                download_button = gr.Button("Download as PDF")
+                input_update_proposal = gr.Textbox(
+                    label='Update proposal', placeholder='Make the proposal more detailed.', visible=False
+                )
+                update_proposal_button = gr.Button('Update proposal', visible=False)
+                download_button = gr.Button("Download as PDF", visible=False)
                 download_link_html = gr.HTML(visible=False)
 
         download_button.click(
@@ -276,6 +292,19 @@ with gr.Blocks(title="HatBot", css=css) as demo:
             [],
             js="() => window.open(document.getElementById('pdf_file').value, '_blank')",
         )
+        def validate_update_proposal_input(text):
+            if not text:
+                raise gr.Error('Update proposal cannot be blank')
+        update_proposal_button.click(
+            validate_update_proposal_input,
+            inputs=[input_update_proposal]
+        ).success(
+            update_proposal,
+            inputs=[providers_dropdown, output_answer, input_update_proposal],
+            outputs=[output_answer, download_link_html]
+        )
+        def make_visable_chat_with_pdf():
+            return gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
 
         def validate_generate_input(provider, customer, product):
 
@@ -294,9 +323,13 @@ with gr.Blocks(title="HatBot", css=css) as demo:
             validate_generate_input,
             inputs=[providers_dropdown, customer_box, product_text_box],
         ).success(
-            ask_llm,
+            generate_proposal,
             inputs=[providers_dropdown, customer_box, product_text_box],
             outputs=[output_answer, download_link_html],
+        ).success(
+            make_visable_chat_with_pdf,
+            inputs=None,
+            outputs=[input_update_proposal, download_button, update_proposal_button]
         )
         clear_button.click(
             lambda: [None, None, None, None, None],
@@ -789,6 +822,8 @@ with gr.Blocks(title="HatBot", css=css) as demo:
 
 
 if __name__ == "__main__":
+    os.environ.pop("LANGCHAIN_TRACING_V2", None)
+
     demo.queue().launch(
         server_name="0.0.0.0",
         share=False,
