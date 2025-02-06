@@ -35,3 +35,18 @@ The different parameters you can/must pass as environment variables in the deplo
 - REDIS_INDEX - mandarory
 
 The deployment replicas is set to 0 initially to let you properly fill in those parameters. Don't forget to scale it up if you want see something 😉!
+
+## Deploy Locally
+Create venv:
+`python -m venv .venv`
+Activate:
+`source .venv/bin activate`
+Install requirements-local.txt
+`pip install -r requirements-local.txt`
+
+Configurations files:
+- `.env`: You must provide REDIS or PGVECTOR 
+- `config.yaml` You must specift an llm provider, such as Hugging Face or OpenAI, and fill the necessary fields for this provider.
+
+Run the app:
+`python app.py`
