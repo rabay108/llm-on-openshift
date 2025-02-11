@@ -49,7 +49,7 @@ TIMEOUT = int(os.getenv("TIMEOUT", 30))
 ##)
 selected_provider="OpenShift AI (vLLM): ibm-granite-instruct"
 provider_id, model_id = get_provider_model(selected_provider)
-generate_response(provider_model)
+generate_response(selected_provider)
 
 
 def create_scheduler():
