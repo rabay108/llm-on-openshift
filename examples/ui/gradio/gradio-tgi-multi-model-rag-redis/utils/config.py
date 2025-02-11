@@ -17,8 +17,8 @@ def _get_attribute_from_file(data: dict, file_name_key: str) -> Optional[str]:
 class ModelConfig():
     """Model configuration."""
 
-    name: Optional[str] = None
-    url: Optional[str] = None
+    name: Optional[str] = "OpenShift AI (vLLM): ibm-granite-instruct"
+    url: Optional[str] = "https://ibm-granite-instruct-rag-llm.apps.cluster-chwxg.chwxg.sandbox322.opentlc.com/v1"
     credentials: Optional[str] = None
     enabled: Optional[bool] = None
     weight: Optional[int] = None
