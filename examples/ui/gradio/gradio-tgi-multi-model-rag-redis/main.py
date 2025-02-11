@@ -11,7 +11,7 @@ import uuid
 import threading
 import gradio as gr
 #from prometheus_client import Gauge, start_http_server, Counter
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 from utils import config_loader
 import llm.query_helper as QueryHelper
 from scheduler.round_robin import RoundRobinScheduler
@@ -22,7 +22,7 @@ que = Queue()
 
 os.environ["REQUESTS_CA_BUNDLE"] = ""
 # initialization
-load_dotenv()
+#load_dotenv()
 config_loader.init_config()
 llm_factory = LLMFactory()
 llm_factory.init_providers(config_loader.config)
