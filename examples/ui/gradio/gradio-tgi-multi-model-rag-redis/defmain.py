@@ -10,7 +10,7 @@ import pdfkit
 import uuid
 import threading
 import gradio as gr
-from prometheus_client import Gauge, start_http_server, Counter
+#from prometheus_client import Gauge, start_http_server, Counter
 #from dotenv import load_dotenv
 from utils import config_loader
 import llm.query_helper as QueryHelper
