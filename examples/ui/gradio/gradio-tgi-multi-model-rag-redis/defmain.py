@@ -31,10 +31,7 @@ print("Call AskLLM")
 provider_model = "your_OpenShift AI (vLLM): ibm-granite-instruct"  
 query = "Red Hat Summit and Ansiblefest2025"  # Replace with your actual query text
 
-# Call the method
-for content, download_link_html in generate_response(provider_model, query):
-    print(f"Content: {content}")
-    print(f"Download Link HTML: {download_link_html}")
+
 
 def remove_source_duplicates(input_list):
     unique_list = []
@@ -119,3 +116,7 @@ def generate_response(provider_model, query):
     
     for content, download_link_html in ask_llm(provider_model, model_input, chain_without_llm):
         yield content, download_link_html
+# Call the method
+for content, download_link_html in generate_response(provider_model, query):
+    print(f"Content: {content}")
+    print(f"Download Link HTML: {download_link_html}")
