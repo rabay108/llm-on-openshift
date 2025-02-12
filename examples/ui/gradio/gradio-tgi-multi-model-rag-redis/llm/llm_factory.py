@@ -31,6 +31,7 @@ class LLMFactory:
 
 
     def _register_llm_provider(self, config, provider, model):
+        print(provider)
         key = self._create_key(provider, model)
         self._providers[key] = self._create_llm_provider(config, provider, model)
 
