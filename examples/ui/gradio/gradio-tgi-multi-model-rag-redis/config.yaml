@@ -1,0 +1,29 @@
+---
+llm_providers:
+  - name: "Hugging Face"
+    enabled: True
+    models:
+      - name: "ibm-granite-instruct"
+        weight: 2
+        url: "https://ibm-granite-instruct-rag-llm.apps.cluster-chwxg.chwxg.sandbox322.opentlc.com/v1"
+        params:
+          - name: max_new_tokens
+            value: 1024
+          - name: temperature
+            value: 0.01
+          - name: top_k
+            value: 10
+          - name: top_p
+            value: 0.95
+          - name: repetition_penalty
+            value: 1.03
+          - name: streaming
+            value: True
+          - name: typical_p
+            value: 0.95
+          - name: verbose
+            value: False
+default_provider: "Hugging Face"
+default_model: "ibm-granite-instruct"
+# type values=(default, round_robin,  all) 
+type: all
