@@ -28,7 +28,7 @@ def init_config() -> None:
         with open(config_file, "r") as f:
             config = load_config_from_stream(f)
             llm_config = config.llm_providers
-
+            print(llm_config)
     except Exception as e:
         print(f"Failed to load config file {config_file}: {e!s}")
         print(traceback.format_exc())
