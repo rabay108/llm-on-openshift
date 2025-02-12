@@ -23,7 +23,7 @@ def init_config() -> None:
     global config
     global llm_config
 
-    config_file = os.environ.get("CONFIG_FILE", "utils/config.yaml")
+    config_file = os.environ.get("CONFIG_FILE", "config.yaml")
     try:
         with open(config_file, "r") as f:
             config = load_config_from_stream(f)
